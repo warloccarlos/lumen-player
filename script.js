@@ -190,20 +190,28 @@ window.onclick = (event) => {
     }
 };
 
-// --- 1. Disclaimer Modal Logic ---
+// --- Disclaimer Modal Logic ---
 const disclaimerModal = document.getElementById('disclaimerModal');
 const closeDisclaimer = document.getElementById('closeDisclaimer');
 
+// 1. Function to show modal
+function showDisclaimer() {
+    // Check if user already dismissed it this session
+    if (!sessionStorage.getItem('disclaimerShown')) {
+        disclaimerModal.style.setProperty('display', 'flex', 'important');
+    }
+}
+
+// 2. Close logic
 closeDisclaimer.onclick = () => {
     disclaimerModal.style.display = 'none';
-    // Optional: Save to localStorage so it only shows once per session
     sessionStorage.setItem('disclaimerShown', 'true');
 };
 
-// Check if already shown this session
-if (sessionStorage.getItem('disclaimerShown')) {
-    disclaimerModal.style.display = 'none';
-}
+// 3. Trigger on Page Load
+window.addEventListener('DOMContentLoaded', () => {
+    showDisclaimer();
+});
 
 // --- 2. Mobile Touch Gestures (Double Tap to Seek) ---
 let lastTap = 0;

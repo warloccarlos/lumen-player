@@ -192,12 +192,12 @@ header {
 .modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(8px);
-    display: none; /* Hidden by default */
+    background: rgba(0, 0, 0, 0.8); /* Darker for better focus */
+    backdrop-filter: blur(10px);
+    display: none; /* Hidden by default, JS will turn it on */
     justify-content: center;
     align-items: center;
-    z-index: 1000;
+    z-index: 2000; /* High z-index to stay on top */
 }
 
 .modal-content {
