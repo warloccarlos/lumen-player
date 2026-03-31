@@ -44,34 +44,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 3. Modal & UI Logic ---
 
-    // Show Disclaimer on Load (Once per session)
-    if (!sessionStorage.getItem('disclaimerShown')) {
-        disclaimerModal.style.setProperty('display', 'flex', 'important');
-    } else {
-        disclaimerModal.style.display = 'none';
-    }
-
-    const dismissDisclaimer = () => {
-        disclaimerModal.style.display = 'none';
+    // 1. Define the function GLOBALLY (outside any {} blocks)
+window.dismissLumenModal = function() {
+    const modal = document.getElementById('disclaimerModal');
+    if (modal) {
+        modal.style.setProperty('display', 'none', 'important');
         sessionStorage.setItem('disclaimerShown', 'true');
-    };
+        console.log("Lumen: Modal dismissed via global function.");
+    }
+};
 
-    if (closeDisclaimer) closeDisclaimer.onclick = dismissDisclaimer;
+// 2. Handle the loading logic inside the listener
+document.addEventListener('DOMContentLoaded', () => {
+    const disclaimerModal = document.getElementById('disclaimerModal');
     
-    // Help Modal
-    helpBtn.onclick = () => helpModal.style.display = 'flex';
-    closeHelp.onclick = () => helpModal.style.display = 'none';
-
-    // Sidebar Toggle (Desktop)
-    togglePlaylistBtn.onclick = () => {
-        sidebar.classList.toggle('hidden');
-    };
-
-    // Close modals on outside click
-    window.onclick = (event) => {
-        if (event.target == helpModal) helpModal.style.display = 'none';
-        if (event.target == disclaimerModal) dismissDisclaimer();
-    };
+    // Auto-hide if already seen
+    if (sessionStorage.getItem('disclaimerShown') === 'true') {
+        disclaimerModal.style.display = 'none';
+    } else {
+        disclaimerModal.style.setProperty('display', 'flex', 'important');
+    }
+    
+    // Emergency: Close if clicking the background overlay itself
+    disclaimerModal.addEventListener('click', (e) => {
+        if (e.target.id === 'disclaimerModal') {
+            window.dismissLumenModal();
+        }
+    });
+});
 
     // --- 4. Core Playback Functions ---
 

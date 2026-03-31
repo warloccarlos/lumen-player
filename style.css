@@ -605,3 +605,17 @@ header {
         z-index: 50;
     }
 }
+.modal-overlay {
+    pointer-events: auto !important;
+}
+
+.modal-content {
+    position: relative;
+    z-index: 5000;
+    pointer-events: auto !important; /* Forces the box to accept clicks */
+}
+
+#closeDisclaimer {
+    cursor: pointer !important;
+    pointer-events: auto !important;
+}
