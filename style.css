@@ -301,4 +301,307 @@ header {
         top: 0;
         z-index: 50;
     }
+}:root {
+    --accent: #8b5cf6;
+    --glass: rgba(18, 18, 18, 0.8);
+    --bg: #050505;
+    --text-dim: #a0a0a0;
+}
+
+body {
+    background: var(--bg);
+    color: white;
+    font-family: 'Inter', -apple-system, sans-serif;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+}
+
+header {
+    padding: 1.2rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(to bottom, #000, transparent);
+    z-index: 100;
+}
+
+.logo {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: 1px;
+}
+
+.header-actions { display: flex; align-items: center; gap: 12px; }
+
+.upload-label, .btn-secondary {
+    padding: 10px 18px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: 0.2s ease;
+    color: white;
+}
+
+.upload-label:hover, .btn-secondary:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+}
+
+#fileInput { display: none; }
+
+.main-container {
+    display: flex;
+    flex: 1;
+    padding: 0 1.5rem 1.5rem;
+    gap: 1.5rem;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+.player-wrapper {
+    flex: 3;
+    background: #000;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+    transition: flex 0.5s ease;
+}
+
+/* Video.js Override */
+.video-js { width: 100% !important; height: 100% !important; border-radius: 20px; }
+.vjs-big-play-button { background-color: var(--accent) !important; border: none !important; }
+
+/* Playlist Sidebar */
+.playlist {
+    flex: 1;
+    min-width: 320px;
+    max-width: 420px;
+    background: var(--glass);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 1.5rem;
+    border: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    flex-direction: column;
+    transition: all 0.5s ease;
+}
+
+.playlist-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.playlist h3 { font-size: 0.8rem; letter-spacing: 1px; color: var(--text-dim); margin: 0; }
+#itemCount { font-size: 0.75rem; color: var(--accent); }
+
+.playlist-item {
+    padding: 14px;
+    margin-bottom: 10px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: 0.3s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-left: 0px solid var(--accent);
+}
+
+.playlist-item:hover { background: rgba(255,255,255,0.08); }
+
+.playlist-item.active {
+    background: rgba(139, 92, 246, 0.15);
+    border-left: 4px solid var(--accent);
+    color: white;
+    font-weight: 600;
+}
+
+/* Toggle Logic */
+.main-container.playlist-hidden .playlist {
+    flex: 0;
+    min-width: 0;
+    padding: 0;
+    margin: 0;
+    opacity: 0;
+    transform: translateX(50px);
+    pointer-events: none;
+}
+
+.remote-loader {
+    display: flex;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 4px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#remoteUrl {
+    background: transparent;
+    border: none;
+    color: white;
+    padding: 0 10px;
+    outline: none;
+    width: 200px;
+    font-size: 0.85rem;
+}
+
+#remoteUrl::placeholder { color: rgba(255,255,255,0.3); }
+
+.main-container.playlist-hidden .player-wrapper { flex: 1; }
+
+.playlist-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    /* ... existing styles ... */
+}
+
+.remove-btn {
+    opacity: 0;
+    background: rgba(255, 50, 50, 0.2);
+    color: #ff4d4d;
+    border: none;
+    border-radius: 6px;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+}
+
+.playlist-item:hover .remove-btn {
+    opacity: 1;
+}
+
+.remove-btn:hover {
+    background: #ff4d4d;
+    color: white;
+}
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8); /* Darker for better focus */
+    backdrop-filter: blur(10px);
+    display: none; /* Hidden by default, JS will turn it on */
+    justify-content: center;
+    align-items: center;
+    z-index: 2000; /* High z-index to stay on top */
+}
+
+.modal-content {
+    background: var(--glass);
+    padding: 2rem;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    width: 300px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.shortcut-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    font-size: 0.9rem;
+    color: var(--text-dim);
+}
+
+.shortcut-item span:first-child {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2px 8px;
+    border-radius: 4px;
+    color: var(--accent);
+    font-family: monospace;
+}
+
+/* Mobile Optimization */
+@media (max-width: 768px) {
+    header {
+        padding: 1rem;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .header-actions {
+        width: 100%;
+        overflow-x: auto; /* Allow horizontal scrolling for buttons if needed */
+        justify-content: flex-start;
+        padding-bottom: 5px;
+    }
+
+    .remote-loader {
+        width: 100%;
+    }
+
+    #remoteUrl {
+        width: 100%; /* URL input takes full width on mobile */
+    }
+
+    .main-container {
+        flex-direction: column; /* Stack player on top of playlist */
+        padding: 0 10px 10px;
+        gap: 10px;
+        height: auto;
+        overflow-y: auto;
+    }
+
+    .player-wrapper {
+        flex: none;
+        width: 100%;
+        aspect-ratio: 16 / 9; /* Lock the aspect ratio so it doesn't collapse */
+    }
+
+    .playlist {
+        flex: none;
+        width: 100%;
+        max-width: none;
+        min-width: 0;
+        height: 400px; /* Give the playlist a fixed height on mobile */
+    }
+
+    /* Hide the "Toggle Playlist" button on mobile since we want both visible/stacked */
+    #togglePlaylist {
+        display: none;
+    }
+}
+
+/* Prevent accidental zooming on mobile while interacting with the player */
+.video-js {
+    touch-action: manipulation;
+}
+
+/* Make the modal text readable on small screens */
+@media (max-width: 768px) {
+    .modal-content {
+        width: 85%;
+        padding: 1.5rem;
+    }
+    
+    /* Ensure the player takes priority space on mobile */
+    .player-wrapper {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+    }
 }
