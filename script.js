@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize Player
     const player = videojs('lumen-player', {
         responsive: true,
+        fluid: false, // Turned off fluid because we are using the ratio-keeper hack
         playbackRates: [0.5, 1, 1.5, 2]
     });
 
@@ -12,82 +14,64 @@ document.addEventListener('DOMContentLoaded', () => {
     let playlist = [];
     let currentIndex = -1;
 
-    // Modals
-    document.getElementById('helpBtn').onclick = () => document.getElementById('helpModal').style.display = 'flex';
-    document.getElementById('closeHelp').onclick = () => document.getElementById('helpModal').style.display = 'none';
-
-    // Toggle Sidebar
+    // Toggle Playlist
     toggleBtn.onclick = () => {
         sidebar.classList.toggle('is-hidden');
         player.trigger('resize');
     };
 
-    window.deleteItem = function(index, event) {
-        event.stopPropagation();
+    window.removeVideo = (index, e) => {
+        e.stopPropagation();
         playlist.splice(index, 1);
-        if (currentIndex === index) {
-            player.src('');
-            currentIndex = -1;
-        } else if (currentIndex > index) {
-            currentIndex--;
-        }
         renderPlaylist();
+        if (currentIndex === index) player.src('');
     };
 
     function renderPlaylist() {
         playlistUl.innerHTML = '';
-        playlist.forEach((item, i) => {
+        playlist.forEach((video, i) => {
             const li = document.createElement('li');
             li.className = `playlist-item ${i === currentIndex ? 'active' : ''}`;
             li.innerHTML = `
-                <span style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${item.name}</span>
-                <button class="remove-btn" onclick="window.deleteItem(${i}, event)">&times;</button>
+                <span style="overflow:hidden; text-overflow:ellipsis;">${video.name}</span>
+                <button onclick="window.removeVideo(${i}, event)" style="background:none; border:none; color:gray; cursor:pointer;">&times;</button>
             `;
-            li.onclick = () => loadVideo(i);
+            li.onclick = () => {
+                currentIndex = i;
+                player.src({ type: video.type, src: video.url });
+                player.play();
+                renderPlaylist();
+            };
             playlistUl.appendChild(li);
         });
     }
 
-    function loadVideo(index) {
-        if (index < 0 || index >= playlist.length) return;
-        currentIndex = index;
-        player.src({ type: playlist[index].type, src: playlist[index].url });
-        renderPlaylist();
-        player.play().catch(() => {});
-    }
-
     fileInput.onchange = (e) => {
-        Array.from(e.target.files).forEach(file => {
-            playlist.push({ name: file.name, url: URL.createObjectURL(file), type: file.type });
+        const files = Array.from(e.target.files);
+        files.forEach(file => {
+            playlist.push({
+                name: file.name,
+                url: URL.createObjectURL(file),
+                type: file.type
+            });
         });
         renderPlaylist();
-        if (playlist.length > 0 && currentIndex === -1) loadVideo(0);
+        if (currentIndex === -1 && playlist.length > 0) {
+            currentIndex = 0;
+            player.src({ type: playlist[0].type, src: playlist[0].url });
+        }
     };
 
     document.getElementById('loadRemote').onclick = () => {
         const url = document.getElementById('remoteUrl').value.trim();
         if (url) {
-            const name = url.split('/').pop().split('?')[0] || 'Remote Stream';
-            playlist.push({ name, url, type: url.includes('m3u8') ? 'application/x-mpegURL' : 'video/mp4' });
+            playlist.push({
+                name: url.split('/').pop() || "Remote Stream",
+                url: url,
+                type: url.includes('m3u8') ? 'application/x-mpegURL' : 'video/mp4'
+            });
             renderPlaylist();
-            if (playlist.length === 1) loadVideo(0);
             document.getElementById('remoteUrl').value = '';
         }
     };
-
-    player.on('ended', () => {
-        if (currentIndex < playlist.length - 1) loadVideo(currentIndex + 1);
-    });
-
-    // Mobile double tap seek
-    let lastTap = 0;
-    player.on('touchend', (e) => {
-        const now = Date.now();
-        if (now - lastTap < 300) {
-            const rect = player.el().getBoundingClientRect();
-            const x = (e.changedTouches[0].clientX - rect.left) / rect.width;
-            x > 0.5 ? player.currentTime(player.currentTime() + 10) : player.currentTime(player.currentTime() - 10);
-        }
-        lastTap = now;
-    });
 });
