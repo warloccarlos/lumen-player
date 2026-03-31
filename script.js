@@ -190,27 +190,35 @@ window.onclick = (event) => {
     }
 };
 
-// --- Disclaimer Modal Logic ---
-const disclaimerModal = document.getElementById('disclaimerModal');
-const closeDisclaimer = document.getElementById('closeDisclaimer');
+// --- ⚡ Bulletproof Disclaimer Logic ---
+document.addEventListener('DOMContentLoaded', () => {
+    const disclaimerModal = document.getElementById('disclaimerModal');
+    const closeDisclaimer = document.getElementById('closeDisclaimer');
 
-// 1. Function to show modal
-function showDisclaimer() {
-    // Check if user already dismissed it this session
-    if (!sessionStorage.getItem('disclaimerShown')) {
+    // 1. Check if it was already dismissed in this session
+    if (sessionStorage.getItem('disclaimerShown') === 'true') {
+        disclaimerModal.style.display = 'none';
+    } else {
+        // Force it to show if not dismissed
         disclaimerModal.style.setProperty('display', 'flex', 'important');
     }
-}
 
-// 2. Close logic
-closeDisclaimer.onclick = () => {
-    disclaimerModal.style.display = 'none';
-    sessionStorage.setItem('disclaimerShown', 'true');
-};
+    // 2. The Dismissal Function
+    const dismissModal = () => {
+        console.log("Lumen: Dismissing performance note...");
+        disclaimerModal.style.setProperty('display', 'none', 'important');
+        sessionStorage.setItem('disclaimerShown', 'true');
+    };
 
-// 3. Trigger on Page Load
-window.addEventListener('DOMContentLoaded', () => {
-    showDisclaimer();
+    // 3. Attach to button click AND "Enter" key for accessibility
+    if (closeDisclaimer) {
+        closeDisclaimer.addEventListener('click', dismissModal);
+    }
+
+    // 4. Emergency: Close if user clicks the blurred background
+    disclaimerModal.addEventListener('click', (e) => {
+        if (e.target === disclaimerModal) dismissModal();
+    });
 });
 
 // --- 2. Mobile Touch Gestures (Double Tap to Seek) ---
