@@ -16,7 +16,6 @@ body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    overscroll-behavior-y: contain;
 }
 
 header {
@@ -33,16 +32,38 @@ header {
 .logo { font-weight: 800; letter-spacing: 2px; color: var(--accent); }
 .header-actions { display: flex; gap: 12px; align-items: center; }
 
+.info-bar {
+    background: rgba(139, 92, 246, 0.1);
+    padding: 8px 20px;
+    border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+    text-align: center;
+}
+.info-bar p { font-size: 0.85rem; color: var(--text-dim); }
+.info-bar b { color: var(--accent); }
+
 .remote-loader { display: flex; background: rgba(255,255,255,0.05); border-radius: 8px; padding: 4px; }
 #remoteUrl { background: transparent; border: none; color: white; padding: 5px 10px; width: 200px; outline: none; }
 
-.btn-primary, .upload-label { background: var(--accent); color: white; padding: 8px 16px; border-radius: 6px; cursor: pointer; border: none; font-size: 0.9rem; transition: 0.2s; text-align: center;}
+.btn-primary, .upload-label { background: var(--accent); color: white; padding: 8px 16px; border-radius: 6px; cursor: pointer; border: none; font-size: 0.9rem; }
 .btn-secondary { background: rgba(255,255,255,0.1); color: white; padding: 8px 16px; border-radius: 6px; cursor: pointer; border: none; }
 
 .main-container { display: flex; flex: 1; overflow: hidden; padding: 20px; gap: 20px; }
-.player-wrapper { flex: 3; background: #000; border-radius: 12px; overflow: hidden; }
+.player-wrapper { flex: 3; background: #000; border-radius: 12px; overflow: hidden; position: relative; }
 
-.playlist { flex: 1; max-width: 350px; background: var(--glass); backdrop-filter: blur(12px); border-radius: 12px; display: flex; flex-direction: column; border: 1px solid rgba(255,255,255,0.1); transition: transform 0.3s ease; }
+/* Video.js UI Overrides for Seek Bar */
+.video-js .vjs-control-bar { 
+    display: flex !important; 
+    background: rgba(15, 15, 20, 0.9) !important; 
+}
+.video-js .vjs-progress-control { 
+    visibility: visible !important; 
+    opacity: 1 !important; 
+    flex: auto !important;
+}
+.video-js .vjs-play-progress { background-color: var(--accent) !important; }
+.video-js .vjs-slider { background-color: rgba(255, 255, 255, 0.15) !important; }
+
+.playlist { flex: 1; max-width: 350px; background: var(--glass); backdrop-filter: blur(12px); border-radius: 12px; display: flex; flex-direction: column; border: 1px solid rgba(255,255,255,0.1); }
 .playlist.is-hidden { display: none !important; }
 
 .playlist-header { padding: 15px; font-size: 0.8rem; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.1); color: var(--accent); }
@@ -53,14 +74,11 @@ header {
 .playlist-item.active { border-left: 3px solid var(--accent); background: rgba(139, 92, 246, 0.1); }
 
 .item-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.9rem; pointer-events: none; }
-.remove-btn { background: transparent; border: none; color: var(--text-dim); font-size: 1.2rem; cursor: pointer; padding: 0 5px; }
+.remove-btn { background: transparent; border: none; color: var(--text-dim); font-size: 1.2rem; cursor: pointer; margin-left: 10px; }
 .remove-btn:hover { color: #ff4d4d; }
 
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); display: none; justify-content: center; align-items: center; z-index: 2000; }
 .modal-content { background: #18181b; padding: 25px; border-radius: 16px; width: 90%; max-width: 400px; border: 1px solid rgba(255,255,255,0.1); }
-
-.shortcut-item { display: flex; justify-content: space-between; margin-bottom: 10px; color: var(--text-dim); }
-.shortcut-item span:first-child { background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; color: var(--accent); }
 
 @media (max-width: 768px) {
     header { flex-direction: column; padding: 10px; gap: 10px; height: auto; }

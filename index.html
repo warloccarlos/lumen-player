@@ -6,6 +6,7 @@
     <title>Lumen | Privacy-Focused Player</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#8b5cf6">
+    
     <link href="video-js.css" rel="stylesheet" />
     <link rel="stylesheet" href="style.css">
 </head>
@@ -21,36 +22,24 @@
             <label for="fileInput" class="upload-label">Add Media</label>
             <input type="file" id="fileInput" multiple accept="video/*" style="display: none;">
             <button id="togglePlaylist" class="btn-secondary">Playlist</button>
-            <button id="helpBtn" class="btn-secondary" style="border-radius: 50%; width: 35px; height: 35px; padding: 0;">?</button>
+            <button id="helpBtn" class="btn-secondary">?</button>
         </div>
     </header>
 
+    <section class="info-bar">
+        <p>⚡ <b>Privacy Note:</b> All media is processed locally. <b>MP4</b> loads instantly; <b>MKV</b> may take a few seconds to index.</p>
+    </section>
+
     <main class="main-container">
         <div class="player-wrapper">
-            <video id="lumen-player" class="video-js vjs-big-play-centered"></video>
+            <video id="lumen-player" class="video-js vjs-big-play-centered" controls preload="auto" crossorigin="anonymous"></video>
         </div>
 
-        <aside class="playlist">
+        <aside class="playlist" id="sidebar">
             <div class="playlist-header">UP NEXT</div>
             <ul id="playlist"></ul>
         </aside>
     </main>
-
-    <div id="disclaimerModal" class="modal-overlay" style="display: flex;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 style="color: #8b5cf6;">⚡ PERFORMANCE NOTE</h3>
-            </div>
-            <p style="font-size: 0.9rem; line-height: 1.5; color: #a1a1aa; margin-bottom: 20px;">
-                Lumen processes files <b>locally</b> for privacy. 
-                <br><br>
-                • <b>MP4:</b> Loads instantly.
-                <br>
-                • <b>MKV:</b> May take a moment to index.
-            </p>
-            <button id="closeDisclaimer" onclick="window.dismissLumenModal()" class="btn-primary" style="width: 100%;">Got it!</button>
-        </div>
-    </div>
 
     <div id="helpModal" class="modal-overlay">
         <div class="modal-content">
@@ -61,6 +50,7 @@
             <div class="shortcut-list">
                 <div class="shortcut-item"><span>Space</span> <span>Play/Pause</span></div>
                 <div class="shortcut-item"><span>F</span> <span>Fullscreen</span></div>
+                <div class="shortcut-item"><span>M</span> <span>Mute</span></div>
                 <div class="shortcut-item"><span>Double Tap</span> <span>Seek 10s</span></div>
             </div>
         </div>

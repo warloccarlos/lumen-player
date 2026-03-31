@@ -1,39 +1,41 @@
-// GLOBAL: Modal Dismissal
-window.dismissLumenModal = function() {
-    const modal = document.getElementById('disclaimerModal');
-    if (modal) {
-        modal.style.setProperty('display', 'none', 'important');
-        sessionStorage.setItem('disclaimerShown', 'true');
-    }
-};
-
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Player Setup
+    // 1. Player Initialization with explicit UI components
     const player = videojs('lumen-player', {
         fluid: true,
-        playbackRates: [0.5, 1, 1.5, 2]
+        responsive: true,
+        playbackRates: [0.5, 1, 1.5, 2],
+        controlBar: {
+            children: [
+                'playToggle',
+                'volumePanel',
+                'currentTimeDisplay',
+                'timeDivider',
+                'durationDisplay',
+                'progressControl',
+                'liveDisplay',
+                'remainingTimeDisplay',
+                'playbackRateMenuButton',
+                'fullscreenToggle',
+            ],
+        },
     });
 
     const playlistUl = document.getElementById('playlist');
     const fileInput = document.getElementById('fileInput');
-    const sidebar = document.querySelector('.playlist');
+    const sidebar = document.getElementById('sidebar');
     const toggleBtn = document.getElementById('togglePlaylist');
     
     let playlist = [];
     let currentIndex = -1;
 
-    // 2. Modal Logic
-    if (sessionStorage.getItem('disclaimerShown') === 'true') {
-        document.getElementById('disclaimerModal').style.display = 'none';
-    }
-
+    // 2. Help Modal
     document.getElementById('helpBtn').onclick = () => document.getElementById('helpModal').style.display = 'flex';
     document.getElementById('closeHelp').onclick = () => document.getElementById('helpModal').style.display = 'none';
 
-    // 3. Toggle Playlist Logic
+    // 3. Playlist Toggle
     toggleBtn.onclick = () => {
         sidebar.classList.toggle('is-hidden');
-        setTimeout(() => player.trigger('resize'), 100);
+        setTimeout(() => player.trigger('resize'), 200);
     };
 
     // 4. Playback Logic
@@ -43,53 +45,45 @@ document.addEventListener('DOMContentLoaded', () => {
         const item = playlist[index];
         
         player.src({ type: item.type, src: item.url });
+        renderPlaylist(); // Update active class
         
-        document.querySelectorAll('.playlist-item').forEach((el, i) => {
-            el.classList.toggle('active', i === index);
+        player.ready(() => {
+            player.play().catch(() => console.log("Interaction required"));
         });
-        
-        player.play().catch(() => {});
     }
 
-    function addMedia(name, url, type) {
-        const item = { name, url, type };
-        playlist.push(item);
-        const idx = playlist.length - 1;
-
-        const li = document.createElement('li');
-        li.className = 'playlist-item';
-        li.innerHTML = `
-            <span class="item-name">${name}</span>
-            <button class="remove-btn" onclick="event.stopPropagation(); window.removeMedia(${idx})">&times;</button>
-        `;
-        li.onclick = () => loadVideo(idx);
-        playlistUl.appendChild(li);
-
-        if (playlist.length === 1) loadVideo(0);
-    }
-
-    // Global helper for deletion to handle index shifts
-    window.removeMedia = function(index) {
+    // Global removal function
+    window.deleteItem = function(index, event) {
+        event.stopPropagation();
         playlist.splice(index, 1);
-        renderPlaylist();
         if (currentIndex === index) {
             player.pause();
             player.src('');
+            currentIndex = -1;
+        } else if (currentIndex > index) {
+            currentIndex--;
         }
+        renderPlaylist();
     };
 
     function renderPlaylist() {
         playlistUl.innerHTML = '';
         playlist.forEach((item, i) => {
             const li = document.createElement('li');
-            li.className = 'playlist-item' + (i === currentIndex ? ' active' : '');
+            li.className = `playlist-item ${i === currentIndex ? 'active' : ''}`;
             li.innerHTML = `
                 <span class="item-name">${item.name}</span>
-                <button class="remove-btn" onclick="event.stopPropagation(); window.removeMedia(${i})">&times;</button>
+                <button class="remove-btn" onclick="window.deleteItem(${i}, event)">&times;</button>
             `;
             li.onclick = () => loadVideo(i);
             playlistUl.appendChild(li);
         });
+    }
+
+    function addMedia(name, url, type) {
+        playlist.push({ name, url, type });
+        renderPlaylist();
+        if (playlist.length === 1 && currentIndex === -1) loadVideo(0);
     }
 
     // 5. Input Handlers
@@ -102,18 +96,18 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('loadRemote').onclick = () => {
         const url = document.getElementById('remoteUrl').value.trim();
         if (url) {
-            const name = url.split('/').pop() || 'Remote Stream';
-            addMedia(name, url, url.includes('m3u8') ? 'application/x-mpegURL' : 'video/mp4');
+            const name = url.split('/').pop().split('?')[0] || 'Remote Stream';
+            const type = url.includes('.m3u8') ? 'application/x-mpegURL' : 'video/mp4';
+            addMedia(name, url, type);
             document.getElementById('remoteUrl').value = '';
         }
     };
 
-    // Auto-next
     player.on('ended', () => {
         if (currentIndex < playlist.length - 1) loadVideo(currentIndex + 1);
     });
 
-    // 6. Mobile Double Tap
+    // 6. Mobile Gestures
     let lastTap = 0;
     player.on('touchend', (e) => {
         const now = Date.now();
