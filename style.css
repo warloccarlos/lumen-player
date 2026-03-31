@@ -1,44 +1,72 @@
+:root {
+    --bg: #050505;
+    --glass: rgba(20, 20, 25, 0.7);
+    --accent: #8b5cf6;
+    --text: #ffffff;
+    --text-dim: #a1a1aa;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
 body {
-  margin: 0;
-  background: #050505;
-  color: white;
-  font-family: sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    overscroll-behavior-y: contain;
 }
 
-/* Layout */
-.main-container {
-  display: flex;
-  height: 100vh;
+header {
+    background: var(--glass);
+    backdrop-filter: blur(12px);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    z-index: 100;
 }
 
-.player-wrapper {
-  flex: 1;
-  background: black;
-}
+.logo { font-weight: 800; letter-spacing: 2px; color: var(--accent); }
+.header-actions { display: flex; gap: 12px; align-items: center; }
 
-/* Modal */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.8);
-  display: none;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-}
+.remote-loader { display: flex; background: rgba(255,255,255,0.05); border-radius: 8px; padding: 4px; }
+#remoteUrl { background: transparent; border: none; color: white; padding: 5px 10px; width: 200px; outline: none; }
 
-.modal-overlay.show {
-  display: flex;
-}
+.btn-primary, .upload-label { background: var(--accent); color: white; padding: 8px 16px; border-radius: 6px; cursor: pointer; border: none; font-size: 0.9rem; transition: 0.2s; text-align: center;}
+.btn-secondary { background: rgba(255,255,255,0.1); color: white; padding: 8px 16px; border-radius: 6px; cursor: pointer; border: none; }
 
-.modal-content {
-  background: #111;
-  padding: 20px;
-  border-radius: 10px;
-  width: 280px;
-  text-align: center;
-}
+.main-container { display: flex; flex: 1; overflow: hidden; padding: 20px; gap: 20px; }
+.player-wrapper { flex: 3; background: #000; border-radius: 12px; overflow: hidden; }
 
-button {
-  cursor: pointer;
+.playlist { flex: 1; max-width: 350px; background: var(--glass); backdrop-filter: blur(12px); border-radius: 12px; display: flex; flex-direction: column; border: 1px solid rgba(255,255,255,0.1); transition: transform 0.3s ease; }
+.playlist.is-hidden { display: none !important; }
+
+.playlist-header { padding: 15px; font-size: 0.8rem; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.1); color: var(--accent); }
+#playlist { list-style: none; overflow-y: auto; flex: 1; }
+
+.playlist-item { padding: 12px 15px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+.playlist-item:hover { background: rgba(255,255,255,0.05); }
+.playlist-item.active { border-left: 3px solid var(--accent); background: rgba(139, 92, 246, 0.1); }
+
+.item-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.9rem; pointer-events: none; }
+.remove-btn { background: transparent; border: none; color: var(--text-dim); font-size: 1.2rem; cursor: pointer; padding: 0 5px; }
+.remove-btn:hover { color: #ff4d4d; }
+
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); display: none; justify-content: center; align-items: center; z-index: 2000; }
+.modal-content { background: #18181b; padding: 25px; border-radius: 16px; width: 90%; max-width: 400px; border: 1px solid rgba(255,255,255,0.1); }
+
+.shortcut-item { display: flex; justify-content: space-between; margin-bottom: 10px; color: var(--text-dim); }
+.shortcut-item span:first-child { background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; color: var(--accent); }
+
+@media (max-width: 768px) {
+    header { flex-direction: column; padding: 10px; gap: 10px; height: auto; }
+    .header-actions { width: 100%; overflow-x: auto; justify-content: flex-start; }
+    .main-container { flex-direction: column; padding: 10px; overflow-y: auto; }
+    .player-wrapper { width: 100%; aspect-ratio: 16/9; flex: none; }
+    .playlist { max-width: none; width: 100%; height: 300px; flex: none; }
+    body { overflow-y: auto; }
 }

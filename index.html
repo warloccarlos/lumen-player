@@ -1,56 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lumen Player</title>
-
-<link rel="stylesheet" href="video-js.css" />
-<link rel="stylesheet" href="style.css">
-
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js')
-      .then(() => console.log('PWA Registered'))
-      .catch(err => console.log(err));
-  });
-}
-</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Lumen | Privacy-Focused Player</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#8b5cf6">
+    <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-<header>
-  <div class="logo">LUMEN</div>
+    <header>
+        <div class="logo">LUMEN</div>
+        <div class="header-actions">
+            <div class="remote-loader">
+                <input type="text" id="remoteUrl" placeholder="Paste Video URL...">
+                <button id="loadRemote" class="btn-primary">Load</button>
+            </div>
+            <label for="fileInput" class="upload-label">Add Media</label>
+            <input type="file" id="fileInput" multiple accept="video/*" style="display: none;">
+            <button id="togglePlaylist" class="btn-secondary">Playlist</button>
+            <button id="helpBtn" class="btn-secondary" style="border-radius: 50%; width: 35px; height: 35px; padding: 0;">?</button>
+        </div>
+    </header>
 
-  <div class="header-actions">
-    <input type="file" id="fileInput" accept="video/*">
-    <button id="helpBtn">?</button>
-  </div>
-</header>
+    <main class="main-container">
+        <div class="player-wrapper">
+            <video id="lumen-player" class="video-js vjs-big-play-centered"></video>
+        </div>
 
-<main class="main-container">
-  <div class="player-wrapper">
-    <video id="mainVideo" class="video-js vjs-big-play-centered" controls></video>
-  </div>
-</main>
+        <aside class="playlist">
+            <div class="playlist-header">UP NEXT</div>
+            <ul id="playlist"></ul>
+        </aside>
+    </main>
 
-<!-- DISCLAIMER MODAL -->
-<div id="disclaimerModal" class="modal-overlay">
-  <div class="modal-content">
-    <h3>⚡ PERFORMANCE NOTE</h3>
-    <p>
-      MP4/WebM loads instantly.<br>
-      MKV may take time.<br><br>
-      100% local playback.
-    </p>
-    <button id="closeDisclaimer">Got it!</button>
-  </div>
-</div>
+    <div id="disclaimerModal" class="modal-overlay" style="display: flex;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 style="color: #8b5cf6;">⚡ PERFORMANCE NOTE</h3>
+            </div>
+            <p style="font-size: 0.9rem; line-height: 1.5; color: #a1a1aa; margin-bottom: 20px;">
+                Lumen processes files <b>locally</b> for privacy. 
+                <br><br>
+                • <b>MP4:</b> Loads instantly.
+                <br>
+                • <b>MKV:</b> May take a moment to index.
+            </p>
+            <button id="closeDisclaimer" onclick="window.dismissLumenModal()" class="btn-primary" style="width: 100%;">Got it!</button>
+        </div>
+    </div>
 
-<script src="video.min.js"></script>
-<script src="script.js"></script>
+    <div id="helpModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>SHORTCUTS</h3>
+                <button id="closeHelp" class="remove-btn" style="font-size: 1.5rem;">&times;</button>
+            </div>
+            <div class="shortcut-list">
+                <div class="shortcut-item"><span>Space</span> <span>Play/Pause</span></div>
+                <div class="shortcut-item"><span>F</span> <span>Fullscreen</span></div>
+                <div class="shortcut-item"><span>Double Tap</span> <span>Seek 10s</span></div>
+            </div>
+        </div>
+    </div>
 
+    <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
