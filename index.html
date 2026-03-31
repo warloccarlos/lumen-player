@@ -3,74 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title> Lumen | Local/Remote Media Player</title>
-    <link rel="stylesheet" href="video-js.css" />
-    <link rel="stylesheet" href="style.css">
+    <title>Lumen | Privacy-Focused Player</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#8b5cf6">
-
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js')
-                .then(reg => console.log('Lumen PWA Registered!'))
-                .catch(err => console.log('PWA Registration failed', err));
-            });
-        }
-    </script>
+    <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header>
-    <div class="logo"><img src="lumen_logo.png" width="25" height="25" alt="Lumen Logo">&nbsp;LUMEN</div>
-    <div class="header-actions">
-        <div class="remote-loader">
-            <input type="text" id="remoteUrl" placeholder="Enter Video URL (mp4, m3u8, etc.)">
-            <button id="loadRemoteBtn" class="btn-secondary">Load URL</button>
-        </div>
-
-        <label for="fileInput" class="upload-label">Add Media</label>
-        <input type="file" id="fileInput" accept="video/*" multiple>
-        <button id="togglePlaylist" class="btn-secondary">Hide Playlist</button>
-        <button id="helpBtn" class="btn-secondary" style="border-radius: 50%; width: 35px; height: 35px; padding: 0;">?</button>
-    </div>
-</header>
-
-<main class="main-container">
-    <div class="player-wrapper" id="playerContainer">
-        <video id="mainVideo" class="video-js vjs-big-play-centered" controls preload="auto" crossorigin="anonymous">
-            <p class="vjs-no-js">To view this video please enable JavaScript</p>
-        </video>
-    </div>
-
-    <aside class="playlist">
-        <div class="playlist-header">
-            <h3>PLAYLIST</h3>
-            <span id="itemCount">0 Items</span>
-            <button id="clearPlaylist" style="background:none; border:none; color:var(--accent); cursor:pointer; font-size:0.7rem; margin-left:10px;">CLEAR ALL</button>
-        </div>
-        <div id="playlistItems">
+    <header>
+        <div class="logo">LUMEN</div>
+        <div class="header-actions">
+            <div class="remote-loader">
+                <input type="text" id="remoteUrl" placeholder="Paste Video URL...">
+                <button id="loadRemote" class="btn-primary">Load</button>
             </div>
-    </aside>
-</main>
-
-<div id="helpModal" class="modal-overlay">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3>LUMEN SHORTCUTS</h3>
-            <button id="closeHelp" class="remove-btn">&times;</button>
+            <label for="fileInput" class="upload-label">Add Media</label>
+            <input type="file" id="fileInput" multiple accept="video/*" style="display: none;">
+            <button id="togglePlaylist" class="btn-secondary">Playlist</button>
+            <button id="helpBtn" class="btn-secondary">?</button>
         </div>
-        <div class="shortcut-list">
-            <div class="shortcut-item"><span>Space</span> <span>Play / Pause</span></div>
-            <div class="shortcut-item"><span>F</span> <span>Fullscreen</span></div>
-            <div class="shortcut-item"><span>M</span> <span>Mute</span></div>
-            <div class="shortcut-item"><span>← / →</span> <span>Seek 5s</span></div>
-            <div class="shortcut-item"><span>↑ / ↓</span> <span>Volume</span></div>
+    </header>
+
+    <section class="info-bar">
+        <p>⚡ <b>Privacy Note:</b> All media is processed locally. <b>MP4</b> loads instantly; <b>MKV</b> may take a few seconds to index.</p>
+    </section>
+
+    <main class="main-container">
+        <div class="player-column">
+            <div class="player-wrapper">
+                <video id="lumen-player" class="video-js vjs-big-play-centered vjs-fluid" controls preload="auto" crossorigin="anonymous"></video>
+            </div>
+        </div>
+
+        <aside class="playlist" id="sidebar">
+            <div class="playlist-header">UP NEXT</div>
+            <ul id="playlist"></ul>
+        </aside>
+    </main>
+
+    <div id="helpModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>SHORTCUTS</h3>
+                <button id="closeHelp" class="remove-btn" style="font-size: 1.5rem;">&times;</button>
+            </div>
+            <div class="shortcut-list">
+                <div class="shortcut-item"><span>Space</span> <span>Play/Pause</span></div>
+                <div class="shortcut-item"><span>F</span> <span>Fullscreen</span></div>
+                <div class="shortcut-item"><span>M</span> <span>Mute</span></div>
+                <div class="shortcut-item"><span>Double Tap</span> <span>Seek 10s</span></div>
+            </div>
         </div>
     </div>
-</div>
 
-<script src="video.min.js"></script>
-<script src="script.js"></script>
+    <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>

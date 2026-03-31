@@ -1,191 +1,116 @@
-// 1. Initialize Video.js Player
-const player = videojs('mainVideo');
-
-// 2. Select Elements
-const fileInput = document.getElementById('fileInput');
-const remoteUrlInput = document.getElementById('remoteUrl');
-const loadRemoteBtn = document.getElementById('loadRemoteBtn');
-const playlistContainer = document.getElementById('playlistItems');
-const itemCountDisplay = document.getElementById('itemCount');
-const toggleBtn = document.getElementById('togglePlaylist');
-const mainContainer = document.querySelector('.main-container');
-const playerContainer = document.getElementById('playerContainer');
-
-// New: Clear All button (Assumes id="clearPlaylist" in HTML)
-const clearBtn = document.getElementById('clearPlaylist');
-
-let playlist = [];
-
-// 3. Handle Local File Selection
-fileInput.addEventListener('change', (e) => {
-    handleFiles(e.target.files);
-    fileInput.value = ''; 
-});
-
-// 4. Handle Remote URL Loading
-loadRemoteBtn.onclick = () => {
-    const url = remoteUrlInput.value.trim();
-    if (url) {
-        let type = 'video/mp4'; 
-        if (url.includes('.m3u8')) type = 'application/x-mpegURL';
-        if (url.includes('.webm')) type = 'video/webm';
-
-        const item = { 
-            name: url.split('/').pop().split('?')[0] || 'Remote Stream', 
-            url: url, 
-            type: type,
-            isRemote: true 
-        };
-        
-        playlist.push(item);
-        renderPlaylist();
-        
-        if (playlist.length === 1) loadVideo(0);
-        remoteUrlInput.value = '';
-    }
-};
-
-// 5. Shared File Handler
-function handleFiles(files) {
-    const fileArray = Array.from(files);
-    fileArray.forEach(file => {
-        const url = URL.createObjectURL(file);
-        playlist.push({ 
-            name: file.name, 
-            url: url, 
-            type: file.type,
-            isLocal: true 
-        });
+document.addEventListener('DOMContentLoaded', () => {
+    const player = videojs('lumen-player', {
+        fluid: true,
+        responsive: true,
+        aspectRatio: '16:9',
+        playbackRates: [0.5, 1, 1.5, 2],
+        controlBar: {
+            children: [
+                'playToggle',
+                'volumePanel',
+                'currentTimeDisplay',
+                'timeDivider',
+                'durationDisplay',
+                'progressControl',
+                'remainingTimeDisplay',
+                'playbackRateMenuButton',
+                'fullscreenToggle',
+            ],
+        },
     });
-    renderPlaylist();
-    if (playlist.length > 0 && !player.src()) loadVideo(0);
-}
 
-// 6. Render Playlist UI
-function renderPlaylist() {
-    playlistContainer.innerHTML = ''; 
-    itemCountDisplay.innerText = `${playlist.length} Items`;
-
-    playlist.forEach((item, index) => {
-        const div = document.createElement('div');
-        div.className = 'playlist-item';
-        // Compare URLs to mark the active one
-        if (player.currentSrc() === item.url) div.classList.add('active');
-
-        const span = document.createElement('span');
-        span.innerText = item.name;
-        span.style.flex = "1";
-        span.onclick = () => loadVideo(index);
-
-        const removeBtn = document.createElement('button');
-        removeBtn.className = 'remove-btn';
-        removeBtn.innerHTML = '&times;';
-        removeBtn.onclick = (e) => {
-            e.stopPropagation(); 
-            removeItem(index);
-        };
-
-        div.appendChild(span);
-        div.appendChild(removeBtn);
-        playlistContainer.appendChild(div);
-    });
-}
-
-// 7. Remove Single Item
-function removeItem(index) {
-    const item = playlist[index];
-    if (item.isLocal) URL.revokeObjectURL(item.url);
-
-    const wasPlaying = (player.currentSrc() === item.url);
-    playlist.splice(index, 1);
+    const playlistUl = document.getElementById('playlist');
+    const fileInput = document.getElementById('fileInput');
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('togglePlaylist');
     
-    renderPlaylist();
+    let playlist = [];
+    let currentIndex = -1;
 
-    if (wasPlaying) {
-        player.src(''); 
-        if (playlist.length > 0) {
-            loadVideo(Math.min(index, playlist.length - 1));
+    // Fix Chrome/Edge initial render
+    player.ready(() => {
+        setTimeout(() => player.trigger('resize'), 500);
+    });
+
+    document.getElementById('helpBtn').onclick = () => document.getElementById('helpModal').style.display = 'flex';
+    document.getElementById('closeHelp').onclick = () => document.getElementById('helpModal').style.display = 'none';
+
+    toggleBtn.onclick = () => {
+        sidebar.classList.toggle('is-hidden');
+        setTimeout(() => player.trigger('resize'), 200);
+    };
+
+    window.deleteItem = function(index, event) {
+        event.stopPropagation();
+        playlist.splice(index, 1);
+        if (currentIndex === index) {
+            player.pause();
+            player.src('');
+            currentIndex = -1;
+        } else if (currentIndex > index) {
+            currentIndex--;
         }
-    }
-}
-
-// 8. Clear All Logic
-if (clearBtn) {
-    clearBtn.onclick = () => {
-        // Clean up all memory blobs
-        playlist.forEach(item => {
-            if (item.isLocal) URL.revokeObjectURL(item.url);
-        });
-        playlist = [];
-        player.src('');
         renderPlaylist();
     };
-}
 
-// 9. Video Loading Logic
-function loadVideo(index) {
-    const target = playlist[index];
-    if (!target) return;
+    function renderPlaylist() {
+        playlistUl.innerHTML = '';
+        playlist.forEach((item, i) => {
+            const li = document.createElement('li');
+            li.className = `playlist-item ${i === currentIndex ? 'active' : ''}`;
+            li.innerHTML = `
+                <span class="item-name">${item.name}</span>
+                <button class="remove-btn" onclick="window.deleteItem(${i}, event)">&times;</button>
+            `;
+            li.onclick = () => loadVideo(i);
+            playlistUl.appendChild(li);
+        });
+    }
 
-    player.src({ type: target.type, src: target.url });
-    player.ready(() => {
+    function loadVideo(index) {
+        if (index < 0 || index >= playlist.length) return;
+        currentIndex = index;
+        const item = playlist[index];
+        player.src({ type: item.type, src: item.url });
+        renderPlaylist();
         player.play().catch(() => {});
+    }
+
+    function addMedia(name, url, type) {
+        playlist.push({ name, url, type });
+        renderPlaylist();
+        if (playlist.length === 1 && currentIndex === -1) loadVideo(0);
+    }
+
+    fileInput.onchange = (e) => {
+        Array.from(e.target.files).forEach(file => {
+            addMedia(file.name, URL.createObjectURL(file), file.type);
+        });
+    };
+
+    document.getElementById('loadRemote').onclick = () => {
+        const url = document.getElementById('remoteUrl').value.trim();
+        if (url) {
+            const name = url.split('/').pop().split('?')[0] || 'Remote Stream';
+            const type = url.includes('.m3u8') ? 'application/x-mpegURL' : 'video/mp4';
+            addMedia(name, url, type);
+            document.getElementById('remoteUrl').value = '';
+        }
+    };
+
+    player.on('ended', () => {
+        if (currentIndex < playlist.length - 1) loadVideo(currentIndex + 1);
     });
 
-    renderPlaylist(); 
-}
-
-// 10. Auto-Advance
-player.on('ended', () => {
-    const currentSrc = player.currentSrc();
-    const currentIndex = playlist.findIndex(item => item.url === currentSrc);
-    if (currentIndex !== -1 && currentIndex < playlist.length - 1) {
-        loadVideo(currentIndex + 1);
-    }
+    // Mobile Seek
+    let lastTap = 0;
+    player.on('touchend', (e) => {
+        const now = Date.now();
+        if (now - lastTap < 300) {
+            const rect = player.el().getBoundingClientRect();
+            const x = (e.changedTouches[0].clientX - rect.left) / rect.width;
+            x > 0.5 ? player.currentTime(player.currentTime() + 10) : player.currentTime(player.currentTime() - 10);
+        }
+        lastTap = now;
+    });
 });
-
-// 11. Toggle Sidebar
-toggleBtn.onclick = () => {
-    mainContainer.classList.toggle('playlist-hidden');
-    toggleBtn.innerText = mainContainer.classList.contains('playlist-hidden') ? 'Show Playlist' : 'Hide Playlist';
-    setTimeout(() => { window.dispatchEvent(new Event('resize')); }, 500);
-};
-
-// 12. Drag and Drop
-['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evt => {
-    playerContainer.addEventListener(evt, (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-    }, false);
-});
-
-playerContainer.addEventListener('drop', (e) => {
-    handleFiles(e.dataTransfer.files);
-});
-
-// 13. Hotkeys
-document.addEventListener('keydown', (e) => {
-    if (document.activeElement.tagName === 'INPUT') return; 
-    
-    if (e.code === 'Space') {
-        e.preventDefault();
-        player.paused() ? player.play() : player.pause();
-    }
-    if (e.code === 'KeyF') {
-        player.isFullscreen() ? player.exitFullscreen() : player.requestFullscreen();
-    }
-});
-
-const helpBtn = document.getElementById('helpBtn');
-const helpModal = document.getElementById('helpModal');
-const closeHelp = document.getElementById('closeHelp');
-
-helpBtn.onclick = () => helpModal.style.display = 'flex';
-closeHelp.onclick = () => helpModal.style.display = 'none';
-
-// Close modal if user clicks outside the content box
-window.onclick = (event) => {
-    if (event.target == helpModal) {
-        helpModal.style.display = 'none';
-    }
-};
