@@ -189,3 +189,55 @@ window.onclick = (event) => {
         helpModal.style.display = 'none';
     }
 };
+
+// --- 1. Disclaimer Modal Logic ---
+const disclaimerModal = document.getElementById('disclaimerModal');
+const closeDisclaimer = document.getElementById('closeDisclaimer');
+
+closeDisclaimer.onclick = () => {
+    disclaimerModal.style.display = 'none';
+    // Optional: Save to localStorage so it only shows once per session
+    sessionStorage.setItem('disclaimerShown', 'true');
+};
+
+// Check if already shown this session
+if (sessionStorage.getItem('disclaimerShown')) {
+    disclaimerModal.style.display = 'none';
+}
+
+// --- 2. Mobile Touch Gestures (Double Tap to Seek) ---
+let lastTap = 0;
+playerContainer.addEventListener('touchend', (e) => {
+    const currentTime = new Date().getTime();
+    const tapLength = currentTime - lastTap;
+    
+    if (tapLength < 300 && tapLength > 0) {
+        e.preventDefault();
+        const rect = playerContainer.getBoundingClientRect();
+        const x = e.changedTouches[0].clientX - rect.left;
+        
+        if (x > rect.width / 2) {
+            // Double tap right side: Skip Forward
+            player.currentTime(player.currentTime() + 10);
+            showFeedback('>> 10s');
+        } else {
+            // Double tap left side: Skip Backward
+            player.currentTime(player.currentTime() - 10);
+            showFeedback('<< 10s');
+        }
+    }
+    lastTap = currentTime;
+});
+
+// Visual Feedback for Gestures
+function showFeedback(text) {
+    const feedback = document.createElement('div');
+    feedback.style.cssText = `
+        position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        background: rgba(0,0,0,0.6); color: white; padding: 10px 20px;
+        border-radius: 20px; pointer-events: none; z-index: 10; font-weight: bold;
+    `;
+    feedback.innerText = text;
+    playerContainer.appendChild(feedback);
+    setTimeout(() => feedback.remove(), 500);
+}
