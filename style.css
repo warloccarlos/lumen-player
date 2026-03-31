@@ -606,7 +606,11 @@ header {
     }
 }
 .modal-overlay {
-    pointer-events: auto !important;
+  display: none;
+}
+
+.modal-overlay.show {
+  display: flex;
 }
 
 .modal-content {

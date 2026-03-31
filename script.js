@@ -73,6 +73,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+window.addEventListener("load", () => {
+  const modal = document.getElementById("disclaimerModal");
+  const closeBtn = document.getElementById("closeDisclaimer");
+
+  // show modal on load
+  modal.style.display = "flex";
+
+  // close modal on button click
+  closeBtn.addEventListener("click", () => {
+    modal.style.display = "none";
+  });
+});
+
     // --- 4. Core Playback Functions ---
 
     function loadVideo(index) {
