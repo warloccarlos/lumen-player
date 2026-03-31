@@ -15,7 +15,7 @@
         <div class="logo">LUMEN</div>
         <div class="header-actions">
             <div class="remote-loader">
-                <input type="text" id="remoteUrl" placeholder="Paste Video URL...">
+                <input type="text" id="remoteUrl" placeholder="Video URL...">
                 <button id="loadRemote" class="btn-primary">Load</button>
             </div>
             <label for="fileInput" class="upload-label">Add Media</label>
@@ -26,13 +26,15 @@
     </header>
 
     <section class="info-bar">
-        <p>⚡ <b>Privacy Note:</b> All media is processed locally. <b>MP4</b> loads instantly; <b>MKV</b> may take a few seconds to index.</p>
+        <p>⚡ <b>Privacy Note:</b> All media is processed locally. <b>MP4</b> loads instantly; <b>MKV</b> needs indexing.</p>
     </section>
 
     <main class="main-container">
         <div class="player-column">
             <div class="player-wrapper">
-                <video id="lumen-player" class="video-js vjs-big-play-centered vjs-fluid" controls preload="auto" crossorigin="anonymous"></video>
+                <div class="ratio-keeper">
+                    <video id="lumen-player" class="video-js vjs-big-play-centered" controls preload="auto"></video>
+                </div>
             </div>
         </div>
 
@@ -51,7 +53,6 @@
             <div class="shortcut-list">
                 <div class="shortcut-item"><span>Space</span> <span>Play/Pause</span></div>
                 <div class="shortcut-item"><span>F</span> <span>Fullscreen</span></div>
-                <div class="shortcut-item"><span>M</span> <span>Mute</span></div>
                 <div class="shortcut-item"><span>Double Tap</span> <span>Seek 10s</span></div>
             </div>
         </div>

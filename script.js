@@ -1,22 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const player = videojs('lumen-player', {
-        fluid: true,
         responsive: true,
-        aspectRatio: '16:9',
-        playbackRates: [0.5, 1, 1.5, 2],
-        controlBar: {
-            children: [
-                'playToggle',
-                'volumePanel',
-                'currentTimeDisplay',
-                'timeDivider',
-                'durationDisplay',
-                'progressControl',
-                'remainingTimeDisplay',
-                'playbackRateMenuButton',
-                'fullscreenToggle',
-            ],
-        },
+        playbackRates: [0.5, 1, 1.5, 2]
     });
 
     const playlistUl = document.getElementById('playlist');
@@ -27,24 +12,20 @@ document.addEventListener('DOMContentLoaded', () => {
     let playlist = [];
     let currentIndex = -1;
 
-    // Fix Chrome/Edge initial render
-    player.ready(() => {
-        setTimeout(() => player.trigger('resize'), 500);
-    });
-
+    // Modals
     document.getElementById('helpBtn').onclick = () => document.getElementById('helpModal').style.display = 'flex';
     document.getElementById('closeHelp').onclick = () => document.getElementById('helpModal').style.display = 'none';
 
+    // Toggle Sidebar
     toggleBtn.onclick = () => {
         sidebar.classList.toggle('is-hidden');
-        setTimeout(() => player.trigger('resize'), 200);
+        player.trigger('resize');
     };
 
     window.deleteItem = function(index, event) {
         event.stopPropagation();
         playlist.splice(index, 1);
         if (currentIndex === index) {
-            player.pause();
             player.src('');
             currentIndex = -1;
         } else if (currentIndex > index) {
@@ -59,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const li = document.createElement('li');
             li.className = `playlist-item ${i === currentIndex ? 'active' : ''}`;
             li.innerHTML = `
-                <span class="item-name">${item.name}</span>
+                <span style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${item.name}</span>
                 <button class="remove-btn" onclick="window.deleteItem(${i}, event)">&times;</button>
             `;
             li.onclick = () => loadVideo(i);
@@ -70,30 +51,26 @@ document.addEventListener('DOMContentLoaded', () => {
     function loadVideo(index) {
         if (index < 0 || index >= playlist.length) return;
         currentIndex = index;
-        const item = playlist[index];
-        player.src({ type: item.type, src: item.url });
+        player.src({ type: playlist[index].type, src: playlist[index].url });
         renderPlaylist();
         player.play().catch(() => {});
     }
 
-    function addMedia(name, url, type) {
-        playlist.push({ name, url, type });
-        renderPlaylist();
-        if (playlist.length === 1 && currentIndex === -1) loadVideo(0);
-    }
-
     fileInput.onchange = (e) => {
         Array.from(e.target.files).forEach(file => {
-            addMedia(file.name, URL.createObjectURL(file), file.type);
+            playlist.push({ name: file.name, url: URL.createObjectURL(file), type: file.type });
         });
+        renderPlaylist();
+        if (playlist.length > 0 && currentIndex === -1) loadVideo(0);
     };
 
     document.getElementById('loadRemote').onclick = () => {
         const url = document.getElementById('remoteUrl').value.trim();
         if (url) {
             const name = url.split('/').pop().split('?')[0] || 'Remote Stream';
-            const type = url.includes('.m3u8') ? 'application/x-mpegURL' : 'video/mp4';
-            addMedia(name, url, type);
+            playlist.push({ name, url, type: url.includes('m3u8') ? 'application/x-mpegURL' : 'video/mp4' });
+            renderPlaylist();
+            if (playlist.length === 1) loadVideo(0);
             document.getElementById('remoteUrl').value = '';
         }
     };
@@ -102,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentIndex < playlist.length - 1) loadVideo(currentIndex + 1);
     });
 
-    // Mobile Seek
+    // Mobile double tap seek
     let lastTap = 0;
     player.on('touchend', (e) => {
         const now = Date.now();
